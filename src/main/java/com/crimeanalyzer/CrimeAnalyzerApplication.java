@@ -50,7 +50,8 @@ public class CrimeAnalyzerApplication {
             log.info("==========================================================");
             datasetService.initializeDataset();
             log.info("Dataset initialization complete. Application is ready.");
-            log.info("Open: http://localhost:8080");
+            String port = System.getProperty("server.port", "8085");
+            log.info("Open application in browser: http://localhost:{}", port);
         };
     }
 }

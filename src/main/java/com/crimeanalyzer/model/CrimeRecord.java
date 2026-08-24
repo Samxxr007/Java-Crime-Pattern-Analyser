@@ -26,11 +26,11 @@ import java.time.LocalTime;
 @Table(
     name = "crime_records",
     indexes = {
-        @Index(name = "idx_area",        columnList = "area"),
+        @Index(name = "idx_area",        columnList = "area_name"),
         @Index(name = "idx_crime_type",  columnList = "crime_type"),
         @Index(name = "idx_date",        columnList = "crime_date"),
         @Index(name = "idx_severity",    columnList = "severity"),
-        @Index(name = "idx_year_month",  columnList = "year, month")
+        @Index(name = "idx_year_month",  columnList = "record_year, record_month")
     }
 )
 @Data
@@ -52,23 +52,23 @@ public class CrimeRecord {
     @Column(name = "crime_time", nullable = false)
     private LocalTime crimeTime;
 
-    @Column(nullable = false)
+    @Column(name = "record_year", nullable = false)
     private Integer year;
 
-    @Column(nullable = false)
+    @Column(name = "record_month", nullable = false)
     private Integer month;
 
     @Column(name = "day_of_week", nullable = false, length = 15)
     private String dayOfWeek;
 
-    @Column(nullable = false)
+    @Column(name = "crime_hour", nullable = false)
     private Integer hour;
 
-    @Column(nullable = false, length = 60)
+    @Column(name = "area_name", nullable = false, length = 60)
     @NotBlank
     private String area;
 
-    @Column(nullable = false, length = 30)
+    @Column(name = "zone_name", nullable = false, length = 30)
     private String zone;
 
     @Column(name = "crime_type", nullable = false, length = 50)

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Chennai Crime Pattern Analyzer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ===================== SIDEBAR ===================== -->
+<div class="d-flex" id="app-wrapper">
+    <nav id="sidebar" class="sidebar d-flex flex-column">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="bi bi-shield-fill-exclamation"></i></div>
+            <div>
+                <div class="brand-title">CrimeAnalyzer</div>
+                <div class="brand-sub">Chennai · Academic Project</div>
+            </div>
+        </div>
+        <hr class="sidebar-divider">
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link active" href="/dashboard">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/records">
+                    <i class="bi bi-table"></i> Crime Records
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/map">
+                    <i class="bi bi-geo-alt-fill"></i> Crime Map
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/analysis">
+                    <i class="bi bi-bar-chart-line-fill"></i> Pattern Analysis
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/recommendations">
+                    <i class="bi bi-lightbulb-fill"></i> Recommendations
+                </a>
+            </li>
+            <li class="nav-item mt-auto">
+                <a class="nav-link" href="/about">
+                    <i class="bi bi-info-circle-fill"></i> About Dataset
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <i class="bi bi-database-fill-check me-1"></i> Synthetic Data Only
+        </div>
+    </nav>
+
+    <!-- ===================== MAIN ===================== -->
+    <div id="main-content" class="flex-grow-1">
+
+        <!-- Top navbar -->
+        <nav class="topbar navbar">
+            <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <div class="topbar-title">
+                <span class="page-title">Dashboard</span>
+                <span class="page-subtitle">Overview of synthetic crime data</span>
+            </div>
+            <div class="topbar-right">
+                <span class="badge badge-synthetic">
+                    <i class="bi bi-shield-fill-check me-1"></i>Synthetic Data
+                </span>
+            </div>
+        </nav>
+
+        <!-- Page content -->
+        <div class="page-content">
+
+            <!-- Disclaimer banner -->
+            <div class="alert alert-info-custom mb-4" role="alert">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <strong>Academic Project Disclaimer:</strong> All data displayed is
+                <strong>synthetically generated</strong> for demonstration purposes only.
+                It does <strong>not</strong> represent official Chennai crime statistics.
+            </div>
+
+            <!-- Stat cards -->
+            <div class="row g-4 mb-4" id="stat-cards">
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="stat-card stat-card--blue">
+                        <div class="stat-icon"><i class="bi bi-clipboard2-data-fill"></i></div>
+                        <div class="stat-value" id="totalRecords">—</div>
+                        <div class="stat-label">Total Records</div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="stat-card stat-card--red">
+                        <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                        <div class="stat-value" id="highSeverity">—</div>
+                        <div class="stat-label">High Severity</div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="stat-card stat-card--orange">
+                        <div class="stat-icon"><i class="bi bi-fire"></i></div>
+                        <div class="stat-value" id="topCrime">—</div>
+                        <div class="stat-label">Most Frequent Crime</div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="stat-card stat-card--purple">
+                        <div class="stat-icon"><i class="bi bi-geo-fill"></i></div>
+                        <div class="stat-value" id="topArea">—</div>
+                        <div class="stat-label">Most Active Area</div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="stat-card stat-card--teal">
+                        <div class="stat-icon"><i class="bi bi-pin-map-fill"></i></div>
+                        <div class="stat-value" id="totalAreas">—</div>
+                        <div class="stat-label">Areas Covered</div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="stat-card stat-card--green">
+                        <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
+                        <div class="stat-value" id="closedCases">—</div>
+                        <div class="stat-label">Closed Cases</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts row 1 -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-8 col-lg-7">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Crime by Area</span>
+                            <span class="chart-badge">Top 15</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="areaChart" height="260"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-5">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-pie-chart-fill me-2 text-warning"></i>Crime by Type</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="typeChart" height="260"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts row 2 -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-4 col-lg-6">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-calendar3 me-2 text-info"></i>Monthly Trend</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="monthChart" height="230"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-6">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-clock-fill me-2 text-success"></i>Crime by Hour</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="hourChart" height="230"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-6">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-graph-up me-2 text-danger"></i>Severity Distribution</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="severityChart" height="230"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts row 3 -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-6">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-activity me-2 text-primary"></i>Crime Trend by Year</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="yearChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-calendar-week me-2 text-warning"></i>Crime by Day of Week</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="dayChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hotspot table -->
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-fire me-2 text-danger"></i>Synthetic Hotspot Rankings</span>
+                            <span class="chart-badge">Academic Score Only</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table data-table mb-0" id="hotspotTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Area</th>
+                                        <th>Zone</th>
+                                        <th>Total Incidents</th>
+                                        <th>Hotspot Score</th>
+                                        <th>Level</th>
+                                        <th>Dominant Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hotspotBody">
+                                    <tr><td colspan="7" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Loading…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /page-content -->
+    </div><!-- /main-content -->
+</div><!-- /app-wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

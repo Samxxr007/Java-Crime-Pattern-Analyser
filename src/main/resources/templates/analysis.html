@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pattern Analysis — Chennai Crime Pattern Analyzer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="d-flex" id="app-wrapper">
+    <nav id="sidebar" class="sidebar d-flex flex-column">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="bi bi-shield-fill-exclamation"></i></div>
+            <div><div class="brand-title">CrimeAnalyzer</div><div class="brand-sub">Chennai · Academic Project</div></div>
+        </div>
+        <hr class="sidebar-divider">
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="/records"><i class="bi bi-table"></i> Crime Records</a></li>
+            <li class="nav-item"><a class="nav-link" href="/map"><i class="bi bi-geo-alt-fill"></i> Crime Map</a></li>
+            <li class="nav-item"><a class="nav-link active" href="/analysis"><i class="bi bi-bar-chart-line-fill"></i> Pattern Analysis</a></li>
+            <li class="nav-item"><a class="nav-link" href="/recommendations"><i class="bi bi-lightbulb-fill"></i> Recommendations</a></li>
+            <li class="nav-item mt-auto"><a class="nav-link" href="/about"><i class="bi bi-info-circle-fill"></i> About Dataset</a></li>
+        </ul>
+        <div class="sidebar-footer"><i class="bi bi-database-fill-check me-1"></i> Synthetic Data Only</div>
+    </nav>
+
+    <div id="main-content" class="flex-grow-1">
+        <nav class="topbar navbar">
+            <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
+            <div class="topbar-title">
+                <span class="page-title">Pattern Analysis</span>
+                <span class="page-subtitle">Explore crime patterns by area</span>
+            </div>
+            <div class="topbar-right"><span class="badge badge-synthetic"><i class="bi bi-shield-fill-check me-1"></i>Synthetic Data</span></div>
+        </nav>
+
+        <div class="page-content">
+            <div class="alert alert-info-custom mb-4">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                All patterns are derived from <strong>synthetic data</strong> generated for academic purposes.
+            </div>
+
+            <!-- Area selector -->
+            <div class="chart-card mb-4">
+                <div class="chart-card-header">
+                    <span class="chart-title"><i class="bi bi-search me-2 text-primary"></i>Select Area to Analyse</span>
+                </div>
+                <div class="p-3">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold">Chennai Area</label>
+                            <select class="form-select form-select-lg" id="analysisArea">
+                                <option value="">— Select an area —</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary btn-lg w-100" id="analyseBtn">
+                                <i class="bi bi-bar-chart-fill me-1"></i>Analyse
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results (hidden until area selected) -->
+            <div id="analysisResults" style="display:none;">
+
+                <!-- Summary cards -->
+                <div class="row g-3 mb-4" id="areaSummaryCards">
+                    <div class="col-md-2">
+                        <div class="stat-card stat-card--blue">
+                            <div class="stat-icon"><i class="bi bi-clipboard2-data-fill"></i></div>
+                            <div class="stat-value" id="aTotal">—</div>
+                            <div class="stat-label">Total Records</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="stat-card stat-card--orange">
+                            <div class="stat-icon"><i class="bi bi-fire"></i></div>
+                            <div class="stat-value" id="aTopCrime">—</div>
+                            <div class="stat-label">Top Crime</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="stat-card stat-card--purple">
+                            <div class="stat-icon"><i class="bi bi-clock-fill"></i></div>
+                            <div class="stat-value" id="aPeakTime">—</div>
+                            <div class="stat-label">Peak Hours</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="stat-card stat-card--red">
+                            <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <div class="stat-value" id="aSeverity">—</div>
+                            <div class="stat-label">Top Severity</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="stat-card stat-card--teal">
+                            <div class="stat-icon"><i class="bi bi-calendar-week-fill"></i></div>
+                            <div class="stat-value" id="aPeakDay">—</div>
+                            <div class="stat-label">Peak Day</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="stat-card stat-card--green" id="hotspotCard">
+                            <div class="stat-icon"><i class="bi bi-thermometer-half"></i></div>
+                            <div class="stat-value" id="aHotspot">—</div>
+                            <div class="stat-label">Hotspot Level</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="row g-4 mb-4">
+                    <div class="col-xl-6">
+                        <div class="chart-card">
+                            <div class="chart-card-header">
+                                <span class="chart-title"><i class="bi bi-calendar3 me-2 text-info"></i>Monthly Trend</span>
+                            </div>
+                            <div class="chart-body"><canvas id="aMonthChart" height="220"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="chart-card">
+                            <div class="chart-card-header">
+                                <span class="chart-title"><i class="bi bi-clock me-2 text-success"></i>Hourly Distribution</span>
+                            </div>
+                            <div class="chart-body"><canvas id="aHourChart" height="220"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-xl-4">
+                        <div class="chart-card">
+                            <div class="chart-card-header">
+                                <span class="chart-title"><i class="bi bi-pie-chart me-2 text-warning"></i>Crime Type Breakdown</span>
+                            </div>
+                            <div class="chart-body"><canvas id="aTypeChart" height="220"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4">
+                        <div class="chart-card">
+                            <div class="chart-card-header">
+                                <span class="chart-title"><i class="bi bi-bar-chart me-2 text-danger"></i>Severity Split</span>
+                            </div>
+                            <div class="chart-body"><canvas id="aSeverityChart" height="220"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4">
+                        <div class="chart-card">
+                            <div class="chart-card-header">
+                                <span class="chart-title"><i class="bi bi-calendar-week me-2 text-primary"></i>Day of Week</span>
+                            </div>
+                            <div class="chart-body"><canvas id="aDayChart" height="220"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /analysisResults -->
+
+            <!-- Empty state -->
+            <div id="analysisEmpty" class="text-center py-5">
+                <i class="bi bi-bar-chart-line display-3 text-muted opacity-50"></i>
+                <p class="text-muted mt-3">Select an area above to view its crime pattern analysis.</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/analysis.js"></script>
+</body>
+</html>

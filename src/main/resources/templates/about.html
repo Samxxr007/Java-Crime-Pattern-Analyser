@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Dataset — Chennai Crime Pattern Analyzer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="d-flex" id="app-wrapper">
+    <nav id="sidebar" class="sidebar d-flex flex-column">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="bi bi-shield-fill-exclamation"></i></div>
+            <div><div class="brand-title">CrimeAnalyzer</div><div class="brand-sub">Chennai · Academic Project</div></div>
+        </div>
+        <hr class="sidebar-divider">
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="/records"><i class="bi bi-table"></i> Crime Records</a></li>
+            <li class="nav-item"><a class="nav-link" href="/map"><i class="bi bi-geo-alt-fill"></i> Crime Map</a></li>
+            <li class="nav-item"><a class="nav-link" href="/analysis"><i class="bi bi-bar-chart-line-fill"></i> Pattern Analysis</a></li>
+            <li class="nav-item"><a class="nav-link" href="/recommendations"><i class="bi bi-lightbulb-fill"></i> Recommendations</a></li>
+            <li class="nav-item mt-auto"><a class="nav-link active" href="/about"><i class="bi bi-info-circle-fill"></i> About Dataset</a></li>
+        </ul>
+        <div class="sidebar-footer"><i class="bi bi-database-fill-check me-1"></i> Synthetic Data Only</div>
+    </nav>
+
+    <div id="main-content" class="flex-grow-1">
+        <nav class="topbar navbar">
+            <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
+            <div class="topbar-title">
+                <span class="page-title">About the Dataset</span>
+                <span class="page-subtitle">Transparency and academic context</span>
+            </div>
+            <div class="topbar-right"><span class="badge badge-synthetic"><i class="bi bi-shield-fill-check me-1"></i>Synthetic Data</span></div>
+        </nav>
+
+        <div class="page-content">
+            <div class="row g-4">
+                <div class="col-xl-8">
+
+                    <!-- Disclaimer -->
+                    <div class="chart-card mb-4 border-warning-subtle">
+                        <div class="chart-card-header" style="background: linear-gradient(135deg,#fff8e1,#fffde7);">
+                            <span class="chart-title text-warning-emphasis">
+                                <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Important Disclaimer
+                            </span>
+                        </div>
+                        <div class="p-4">
+                            <div class="alert alert-warning">
+                                <strong>SYNTHETIC DATASET — ACADEMIC DEMONSTRATION ONLY</strong><br>
+                                The crime data used by this application is entirely <em>fictional and programmatically generated</em>.
+                                It does <strong>not</strong> represent official Chennai crime statistics, actual crime incidents,
+                                or any law-enforcement data. Any resemblance to real events is coincidental.
+                            </div>
+                            <p class="mb-0 text-muted">
+                                This project is a college capstone submission designed to demonstrate Java programming concepts,
+                                Spring Boot architecture, and data analysis techniques using a safe, synthetic dataset.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Dataset details -->
+                    <div class="chart-card mb-4">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-database me-2 text-primary"></i>Dataset Details</span>
+                        </div>
+                        <div class="p-4">
+                            <table class="table table-borderless about-table">
+                                <tbody>
+                                    <tr><th width="35%">Generator</th><td><code>DatasetGenerator.java</code> — Fixed seed <code>20240101L</code></td></tr>
+                                    <tr><th>Records</th><td id="aboutTotal">Loading…</td></tr>
+                                    <tr><th>Format</th><td>CSV (comma-separated values, UTF-8)</td></tr>
+                                    <tr><th>Date Range</th><td>2020–2024 (5 years, synthetic)</td></tr>
+                                    <tr><th>Locations</th><td>25 Chennai areas with approximate public coordinates</td></tr>
+                                    <tr><th>Crime Types</th><td>10 categories</td></tr>
+                                    <tr><th>Reproducibility</th><td>Fixed random seed — same dataset on every regeneration</td></tr>
+                                    <tr><th>Storage</th><td>MySQL (crime_analyzer database, crime_records table)</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Technology stack -->
+                    <div class="chart-card mb-4">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-layers me-2 text-primary"></i>Technology Stack</span>
+                        </div>
+                        <div class="p-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold text-primary">Backend</h6>
+                                    <ul class="list-unstyled about-tech-list">
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Java 17 (primary language)</li>
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Spring Boot 3.2</li>
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Spring Data JPA / Hibernate</li>
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Maven build system</li>
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>OpenCSV (file I/O)</li>
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Lombok</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold text-primary">Frontend &amp; DB</h6>
+                                    <ul class="list-unstyled about-tech-list">
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Thymeleaf templates</li>
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Bootstrap 5</li>
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Chart.js 4</li>
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Leaflet.js 1.9</li>
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>MySQL 8</li>
+                                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Vanilla JavaScript ES6+</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Java concepts -->
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-code-slash me-2 text-primary"></i>Java Concepts Demonstrated</span>
+                        </div>
+                        <div class="p-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold">OOP Principles</h6>
+                                    <ul class="list-unstyled about-tech-list">
+                                        <li><i class="bi bi-check2 text-primary me-2"></i>Encapsulation — private fields + Lombok</li>
+                                        <li><i class="bi bi-check2 text-primary me-2"></i>Abstraction — service interfaces</li>
+                                        <li><i class="bi bi-check2 text-primary me-2"></i>Polymorphism — @RestControllerAdvice</li>
+                                        <li><i class="bi bi-check2 text-primary me-2"></i>Builder pattern — model classes</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold">Collections Used</h6>
+                                    <ul class="list-unstyled about-tech-list">
+                                        <li><i class="bi bi-check2 text-primary me-2"></i><code>HashMap</code> — area/type frequency</li>
+                                        <li><i class="bi bi-check2 text-primary me-2"></i><code>TreeMap</code> — sorted hour/month maps</li>
+                                        <li><i class="bi bi-check2 text-primary me-2"></i><code>ArrayList</code> — record lists</li>
+                                        <li><i class="bi bi-check2 text-primary me-2"></i><code>HashSet</code> — validation sets</li>
+                                        <li><i class="bi bi-check2 text-primary me-2"></i>Java Streams API — aggregation</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right column -->
+                <div class="col-xl-4">
+                    <div class="chart-card mb-4">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-person-badge me-2 text-primary"></i>Project Info</span>
+                        </div>
+                        <div class="p-4">
+                            <dl class="about-dl">
+                                <dt>Project Name</dt>
+                                <dd>Chennai Crime Pattern Analyzer &amp; Recommender</dd>
+                                <dt>Type</dt>
+                                <dd>College Capstone Project</dd>
+                                <dt>Domain</dt>
+                                <dd>Data Analysis &amp; Recommendation Systems</dd>
+                                <dt>Language</dt>
+                                <dd>Java 17 (primary)</dd>
+                                <dt>Dataset</dt>
+                                <dd>Synthetic — programmatically generated</dd>
+                                <dt>Purpose</dt>
+                                <dd>Academic demonstration of Java, OOP, Collections, Spring Boot, MySQL</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <div class="chart-card mb-4">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-speedometer2 me-2 text-primary"></i>Algorithm Notes</span>
+                        </div>
+                        <div class="p-4 small">
+                            <table class="table table-sm table-borderless">
+                                <thead><tr><th>Operation</th><th>Complexity</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Frequency calculation</td><td><code>O(n)</code></td></tr>
+                                    <tr><td>Filtering</td><td><code>O(n)</code></td></tr>
+                                    <tr><td>Sorting</td><td><code>O(n log n)</code></td></tr>
+                                    <tr><td>HashMap lookup</td><td><code>O(1) avg</code></td></tr>
+                                    <tr><td>TreeMap insertion</td><td><code>O(log k)</code></td></tr>
+                                    <tr><td>Hotspot scoring</td><td><code>O(n)</code></td></tr>
+                                    <tr><td>DB findById</td><td><code>O(1)</code> (PK index)</td></tr>
+                                    <tr><td>Dataset generation</td><td><code>O(n)</code></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-link-45deg me-2 text-primary"></i>Quick API Reference</span>
+                        </div>
+                        <div class="p-4 small font-monospace">
+                            <div class="api-endpoint">GET /api/crimes</div>
+                            <div class="api-endpoint">GET /api/crimes/{id}</div>
+                            <div class="api-endpoint">GET /api/crimes/filter</div>
+                            <div class="api-endpoint">GET /api/analytics/summary</div>
+                            <div class="api-endpoint">GET /api/analytics/hotspots</div>
+                            <div class="api-endpoint">GET /api/analytics/area/{area}</div>
+                            <div class="api-endpoint">GET /api/recommendations/{area}/{type}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/common.js"></script>
+<script>
+    // Load total record count
+    fetch('/api/crimes/dataset/info')
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('aboutTotal').textContent =
+                d.totalDatabaseRecords.toLocaleString() + ' synthetic records';
+        })
+        .catch(() => { document.getElementById('aboutTotal').textContent = 'Data unavailable'; });
+</script>
+</body>
+</html>

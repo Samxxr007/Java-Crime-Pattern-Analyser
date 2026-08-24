@@ -103,14 +103,14 @@ class AnalyticsServiceTest {
     @Test
     @DisplayName("getOverallStatistics returns populated CrimeStatistics")
     void getOverallStatistics_returnsPopulatedStats() {
-        List<Object[]> areaCounts = List.of(new Object[]{"Anna Nagar", 3L}, new Object[]{"T Nagar", 2L});
-        List<Object[]> typeCounts = List.of(new Object[]{"Theft", 2L}, new Object[]{"Cyber Crime", 1L});
-        List<Object[]> monthCounts = List.of(new Object[]{5, 2L}, new Object[]{6, 1L});
-        List<Object[]> hourCounts = List.of(new Object[]{14, 1L}, new Object[]{19, 2L});
-        List<Object[]> dayCounts = List.of(new Object[]{"Friday", 1L}, new Object[]{"Wednesday", 1L});
-        List<Object[]> yearCounts = List.of(new Object[]{2023, 3L});
-        List<Object[]> sevCounts = List.of(new Object[]{"HIGH", 1L}, new Object[]{"MEDIUM", 1L}, new Object[]{"LOW", 1L});
-        List<Object[]> statusCounts = List.of(new Object[]{"REPORTED", 1L}, new Object[]{"CLOSED", 1L}, new Object[]{"UNDER_INVESTIGATION", 1L});
+        List<Object[]> areaCounts = List.<Object[]>of(new Object[]{"Anna Nagar", 3L}, new Object[]{"T Nagar", 2L});
+        List<Object[]> typeCounts = List.<Object[]>of(new Object[]{"Theft", 2L}, new Object[]{"Cyber Crime", 1L});
+        List<Object[]> monthCounts = List.<Object[]>of(new Object[]{5, 2L}, new Object[]{6, 1L});
+        List<Object[]> hourCounts = List.<Object[]>of(new Object[]{14, 1L}, new Object[]{19, 2L});
+        List<Object[]> dayCounts = List.<Object[]>of(new Object[]{"Friday", 1L}, new Object[]{"Wednesday", 1L});
+        List<Object[]> yearCounts = List.<Object[]>of(new Object[]{2023, 3L});
+        List<Object[]> sevCounts = List.<Object[]>of(new Object[]{"HIGH", 1L}, new Object[]{"MEDIUM", 1L}, new Object[]{"LOW", 1L});
+        List<Object[]> statusCounts = List.<Object[]>of(new Object[]{"REPORTED", 1L}, new Object[]{"CLOSED", 1L}, new Object[]{"UNDER_INVESTIGATION", 1L});
 
         when(crimeRepository.countByArea()).thenReturn(areaCounts);
         when(crimeRepository.countByCrimeType()).thenReturn(typeCounts);
@@ -163,9 +163,9 @@ class AnalyticsServiceTest {
     @Test
     @DisplayName("computeHotspots calculates hotspot ranking list")
     void computeHotspots_calculatesAndRanks() {
-        List<Object[]> areaCounts = List.of(new Object[]{"Anna Nagar", 100L}, new Object[]{"T Nagar", 50L});
-        List<Object[]> sevCounts = List.of(new Object[]{"HIGH", 30L}, new Object[]{"MEDIUM", 40L});
-        List<Object[]> typeCounts = List.of(new Object[]{"Theft", 60L});
+        List<Object[]> areaCounts = List.<Object[]>of(new Object[]{"Anna Nagar", 100L}, new Object[]{"T Nagar", 50L});
+        List<Object[]> sevCounts = List.<Object[]>of(new Object[]{"HIGH", 30L}, new Object[]{"MEDIUM", 40L});
+        List<Object[]> typeCounts = List.<Object[]>of(new Object[]{"Theft", 60L});
 
         when(crimeRepository.countByArea()).thenReturn(areaCounts);
         when(crimeRepository.countBySeverity()).thenReturn(sevCounts);

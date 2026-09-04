@@ -11,6 +11,31 @@ let areaChart, typeChart, monthChart, hourChart, severityChart, yearChart, dayCh
 // Cached stats for instantaneous theme-switch re-rendering
 let cachedStats = null;
 
+const FALLBACK_CHART_COLORS = [
+    '#3b82f6', '#ef4444', '#f97316', '#8b5cf6', '#14b8a6',
+    '#22c55e', '#eab308', '#06b6d4', '#f43f5e', '#64748b',
+    '#0ea5e9', '#a855f7', '#84cc16', '#fb923c', '#6366f1'
+];
+
+function resolveChartColors() {
+    if (typeof getChartThemeColors === 'function') {
+        try { return getChartThemeColors(); } catch(e) {}
+    }
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return {
+        textColor: isDark ? '#ffffff' : '#0f172a',
+        tickColor: isDark ? '#f1f5f9' : '#334155',
+        gridColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)',
+        borderColor: isDark ? '#111827' : '#ffffff'
+    };
+}
+
+function getPalette() {
+    return (typeof CHART_COLORS !== 'undefined' && Array.isArray(CHART_COLORS))
+        ? CHART_COLORS
+        : FALLBACK_CHART_COLORS;
+}
+
 // -------------------------------------------------------
 // Entry point
 // -------------------------------------------------------
@@ -30,7 +55,11 @@ async function loadDashboard() {
         const stats = await apiFetch('/api/analytics/summary');
         cachedStats = stats;
         renderStatCards(stats);
-        renderAllCharts(stats);
+        try {
+            renderAllCharts(stats);
+        } catch (chartErr) {
+            console.error('Charts rendering error:', chartErr);
+        }
     } catch (err) {
         console.error('Dashboard load error:', err);
         showToast('Failed to load dashboard data. Is the server running?', 'error');
@@ -45,14 +74,19 @@ async function loadDashboard() {
 }
 
 function renderAllCharts(stats) {
-    if (!stats) return;
-    renderAreaChart(stats.crimesByArea);
-    renderTypeChart(stats.crimesByType);
-    renderMonthChart(stats.crimesByMonth);
-    renderHourChart(stats.crimesByHour);
-    renderSeverityChart(stats.severityDistribution);
-    renderYearChart(stats.crimesByYear);
-    renderDayChart(stats.crimesByDayOfWeek);
+    if (!stats || typeof Chart === 'undefined') {
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js library not yet ready.');
+        }
+        return;
+    }
+    try { renderAreaChart(stats.crimesByArea); } catch(e) { console.error('renderAreaChart error:', e); }
+    try { renderTypeChart(stats.crimesByType); } catch(e) { console.error('renderTypeChart error:', e); }
+    try { renderMonthChart(stats.crimesByMonth); } catch(e) { console.error('renderMonthChart error:', e); }
+    try { renderHourChart(stats.crimesByHour); } catch(e) { console.error('renderHourChart error:', e); }
+    try { renderSeverityChart(stats.severityDistribution); } catch(e) { console.error('renderSeverityChart error:', e); }
+    try { renderYearChart(stats.crimesByYear); } catch(e) { console.error('renderYearChart error:', e); }
+    try { renderDayChart(stats.crimesByDayOfWeek); } catch(e) { console.error('renderDayChart error:', e); }
 }
 
 // -------------------------------------------------------
@@ -101,22 +135,26 @@ function animateValue(id, start, end, duration) {
 
 function renderAreaChart(data) {
     if (!data) return;
+    const canvas = document.getElementById('areaChart');
+    if (!canvas) return;
+
     const sorted = Object.entries(data)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 15);
     const labels = sorted.map(e => e[0]);
     const values = sorted.map(e => e[1]);
-    const { textColor, tickColor, gridColor } = getChartThemeColors();
+    const { tickColor, gridColor } = resolveChartColors();
+    const palette = getPalette();
 
     destroyChart(areaChart);
-    areaChart = new Chart(document.getElementById('areaChart'), {
+    areaChart = new Chart(canvas, {
         type: 'bar',
         data: {
             labels,
             datasets: [{
                 label: 'Incidents',
                 data: values,
-                backgroundColor: CHART_COLORS.slice(0, labels.length),
+                backgroundColor: palette.slice(0, labels.length),
                 borderRadius: 6,
                 borderSkipped: false,
             }]
@@ -142,19 +180,23 @@ function renderAreaChart(data) {
 
 function renderTypeChart(data) {
     if (!data) return;
+    const canvas = document.getElementById('typeChart');
+    if (!canvas) return;
+
     const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
     const labels  = entries.map(e => e[0]);
     const values  = entries.map(e => e[1]);
-    const { textColor, borderColor } = getChartThemeColors();
+    const { textColor, borderColor } = resolveChartColors();
+    const palette = getPalette();
 
     destroyChart(typeChart);
-    typeChart = new Chart(document.getElementById('typeChart'), {
+    typeChart = new Chart(canvas, {
         type: 'doughnut',
         data: {
             labels,
             datasets: [{
                 data: values,
-                backgroundColor: CHART_COLORS,
+                backgroundColor: palette,
                 borderWidth: 2,
                 borderColor: borderColor,
                 hoverOffset: 8
@@ -176,13 +218,16 @@ function renderTypeChart(data) {
 
 function renderMonthChart(data) {
     if (!data) return;
+    const canvas = document.getElementById('monthChart');
+    if (!canvas) return;
+
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
-    const labels = months.map(m => monthName(m));
+    const labels = months.map(m => (typeof monthName === 'function' ? monthName(m) : 'M' + m));
     const values = months.map(m => data[m] || 0);
-    const { tickColor, gridColor } = getChartThemeColors();
+    const { tickColor, gridColor } = resolveChartColors();
 
     destroyChart(monthChart);
-    monthChart = new Chart(document.getElementById('monthChart'), {
+    monthChart = new Chart(canvas, {
         type: 'line',
         data: {
             labels,
@@ -219,13 +264,16 @@ function renderMonthChart(data) {
 
 function renderHourChart(data) {
     if (!data) return;
+    const canvas = document.getElementById('hourChart');
+    if (!canvas) return;
+
     const hours  = Array.from({ length: 24 }, (_, i) => i);
-    const labels = hours.map(h => hourLabel(h));
+    const labels = hours.map(h => (typeof hourLabel === 'function' ? hourLabel(h) : h + ':00'));
     const values = hours.map(h => data[h] || 0);
-    const { tickColor, gridColor } = getChartThemeColors();
+    const { tickColor, gridColor } = resolveChartColors();
 
     destroyChart(hourChart);
-    hourChart = new Chart(document.getElementById('hourChart'), {
+    hourChart = new Chart(canvas, {
         type: 'bar',
         data: {
             labels,
@@ -258,13 +306,16 @@ function renderHourChart(data) {
 
 function renderSeverityChart(data) {
     if (!data) return;
+    const canvas = document.getElementById('severityChart');
+    if (!canvas) return;
+
     const labels = ['HIGH', 'MEDIUM', 'LOW'];
     const values = labels.map(l => data[l] || 0);
     const colors = ['#ef4444', '#f97316', '#22c55e'];
-    const { textColor, borderColor } = getChartThemeColors();
+    const { textColor, borderColor } = resolveChartColors();
 
     destroyChart(severityChart);
-    severityChart = new Chart(document.getElementById('severityChart'), {
+    severityChart = new Chart(canvas, {
         type: 'pie',
         data: {
             labels,
@@ -291,12 +342,15 @@ function renderSeverityChart(data) {
 
 function renderYearChart(data) {
     if (!data) return;
+    const canvas = document.getElementById('yearChart');
+    if (!canvas) return;
+
     const years  = Object.keys(data).sort();
     const values = years.map(y => data[y] || 0);
-    const { tickColor, gridColor } = getChartThemeColors();
+    const { tickColor, gridColor } = resolveChartColors();
 
     destroyChart(yearChart);
-    yearChart = new Chart(document.getElementById('yearChart'), {
+    yearChart = new Chart(canvas, {
         type: 'line',
         data: {
             labels: years,
@@ -333,13 +387,16 @@ function renderYearChart(data) {
 
 function renderDayChart(data) {
     if (!data) return;
+    const canvas = document.getElementById('dayChart');
+    if (!canvas) return;
+
     const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const labels   = dayOrder.filter(d => data[d] !== undefined);
     const values   = labels.map(d => data[d] || 0);
-    const { tickColor, gridColor } = getChartThemeColors();
+    const { tickColor, gridColor } = resolveChartColors();
 
     destroyChart(dayChart);
-    dayChart = new Chart(document.getElementById('dayChart'), {
+    dayChart = new Chart(canvas, {
         type: 'bar',
         data: {
             labels,

@@ -7,6 +7,19 @@ let radarChart = null;
 let barChart = null;
 let cachedComparisonData = null;
 
+function resolveChartColors() {
+    if (typeof getChartThemeColors === 'function') {
+        try { return getChartThemeColors(); } catch(e) {}
+    }
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return {
+        textColor: isDark ? '#ffffff' : '#0f172a',
+        tickColor: isDark ? '#f1f5f9' : '#334155',
+        gridColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)',
+        borderColor: isDark ? '#111827' : '#ffffff'
+    };
+}
+
 const CHENNAI_AREAS = [
     "Anna Nagar", "T Nagar", "Adyar", "Velachery", "Tambaram",
     "Guindy", "Egmore", "Mylapore", "Perambur", "Ambattur",
@@ -136,7 +149,7 @@ function renderRadarChart(d) {
 
     const data1 = ALL_CRIME_TYPES.map(t => d.crimeDistributionArea1[t] || 0);
     const data2 = ALL_CRIME_TYPES.map(t => d.crimeDistributionArea2[t] || 0);
-    const { textColor, tickColor, gridColor, borderColor } = getChartThemeColors();
+    const { textColor, tickColor, gridColor, borderColor } = resolveChartColors();
 
     if (radarChart) radarChart.destroy();
 
@@ -198,7 +211,7 @@ function renderSeverityChart(d) {
     const severities = ['HIGH', 'MEDIUM', 'LOW'];
     const s1 = severities.map(s => d.severityDistributionArea1[s] || 0);
     const s2 = severities.map(s => d.severityDistributionArea2[s] || 0);
-    const { textColor, tickColor, gridColor } = getChartThemeColors();
+    const { textColor, tickColor, gridColor } = resolveChartColors();
 
     if (barChart) barChart.destroy();
 

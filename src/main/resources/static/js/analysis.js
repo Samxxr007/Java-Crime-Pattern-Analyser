@@ -8,6 +8,19 @@
 let aMonthChart, aHourChart, aTypeChart, aSeverityChart, aDayChart;
 let cachedAnalysisData = null;
 
+function resolveChartColors() {
+    if (typeof getChartThemeColors === 'function') {
+        try { return getChartThemeColors(); } catch(e) {}
+    }
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return {
+        textColor: isDark ? '#ffffff' : '#0f172a',
+        tickColor: isDark ? '#f1f5f9' : '#334155',
+        gridColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)',
+        borderColor: isDark ? '#111827' : '#ffffff'
+    };
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const areaSelect = document.getElementById('analysisArea');
     await loadAreaDropdown(areaSelect, false);
@@ -89,7 +102,7 @@ function populateSummaryCards(d) {
 }
 
 function renderAreaCharts(d) {
-    const { textColor, tickColor, gridColor, borderColor } = getChartThemeColors();
+    const { textColor, tickColor, gridColor, borderColor } = resolveChartColors();
 
     // Monthly trend
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -208,7 +221,7 @@ function renderAreaCharts(d) {
 }
 
 function chartOpts() {
-    const { tickColor, gridColor } = getChartThemeColors();
+    const { tickColor, gridColor } = resolveChartColors();
     return {
         responsive: true,
         maintainAspectRatio: false,

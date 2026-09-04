@@ -121,6 +121,7 @@ const CHART_COLORS = [
     '#22c55e', '#eab308', '#06b6d4', '#f43f5e', '#64748b',
     '#0ea5e9', '#a855f7', '#84cc16', '#fb923c', '#6366f1'
 ];
+window.CHART_COLORS = CHART_COLORS;
 
 function getChartThemeColors() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -131,21 +132,31 @@ function getChartThemeColors() {
         borderColor: isDark ? '#111827' : '#ffffff'
     };
 }
+window.getChartThemeColors = getChartThemeColors;
 
-/** Applies high-contrast styling to Chart.js. */
-Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
-Chart.defaults.font.size   = 12;
-Chart.defaults.color       = document.documentElement.getAttribute('data-theme') === 'dark' ? '#ffffff' : '#1e293b';
-Chart.defaults.plugins.legend.labels.usePointStyle = true;
-Chart.defaults.plugins.legend.labels.pointStyleWidth = 10;
-Chart.defaults.plugins.legend.labels.color = document.documentElement.getAttribute('data-theme') === 'dark' ? '#ffffff' : '#1e293b';
+/** Applies high-contrast styling to Chart.js if loaded. */
+if (typeof Chart !== 'undefined' && Chart.defaults) {
+    Chart.defaults.font = Chart.defaults.font || {};
+    Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+    Chart.defaults.font.size   = 12;
+    Chart.defaults.color       = document.documentElement.getAttribute('data-theme') === 'dark' ? '#ffffff' : '#1e293b';
+    if (Chart.defaults.plugins && Chart.defaults.plugins.legend && Chart.defaults.plugins.legend.labels) {
+        Chart.defaults.plugins.legend.labels.usePointStyle = true;
+        Chart.defaults.plugins.legend.labels.color = document.documentElement.getAttribute('data-theme') === 'dark' ? '#ffffff' : '#1e293b';
+    }
+}
 
 /** Destroys a chart instance safely before re-creating. */
 function destroyChart(chartVar) {
     if (chartVar && typeof chartVar.destroy === 'function') {
-        chartVar.destroy();
+        try {
+            chartVar.destroy();
+        } catch (e) {
+            console.warn('Could not destroy chart instance:', e);
+        }
     }
 }
+window.destroyChart = destroyChart;
 
 // -------------------------------------------------------
 // Toast / notification

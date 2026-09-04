@@ -815,6 +815,12 @@ body {
     border: 1px solid #22c55e !important;
 }
 
+/* Tactical Command Dark Map Tiles (Free OpenStreetMap, Zero API Key & Zero Watermark) */
+.dark-tiles .leaflet-tile,
+img.leaflet-tile.dark-tiles {
+    filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7) !important;
+}
+
 /* Leaflet Popups */
 [data-theme="dark"] .leaflet-popup-content-wrapper,
 [data-theme="dark"] .leaflet-popup-tip {

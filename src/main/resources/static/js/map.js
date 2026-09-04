@@ -12,19 +12,22 @@ let currentBaseTileLayer = null;
 let currentRadiusKm = 1;
 let isPatrolVisible = false;
 
-// Tile layers definitions
+// Tile layers definitions (100% Free, Zero API Keys, Zero Watermarks)
 const TILE_PROVIDERS = {
     dark: {
-        url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-        attr: '© <a href="https://carto.com/">CARTO</a>'
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attr: '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+        className: 'dark-tiles'
     },
     osm: {
         url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        attr: '© <a href="https://openstreetmap.org">OpenStreetMap</a>'
+        attr: '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+        className: 'standard-tiles'
     },
     satellite: {
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attr: '© <a href="https://www.esri.com/">Esri World Imagery</a>'
+        attr: '© <a href="https://www.esri.com/">Esri World Imagery</a>',
+        className: 'satellite-tiles'
     }
 };
 
@@ -118,6 +121,7 @@ function switchBaseLayer(key) {
     const provider = TILE_PROVIDERS[key] || TILE_PROVIDERS.dark;
     currentBaseTileLayer = L.tileLayer(provider.url, {
         attribution: provider.attr,
+        className: provider.className || '',
         maxZoom: 18
     }).addTo(map);
 }

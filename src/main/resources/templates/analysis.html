@@ -21,6 +21,7 @@
             <li class="nav-item"><a class="nav-link" href="/records"><i class="bi bi-table"></i> Crime Records</a></li>
             <li class="nav-item"><a class="nav-link" href="/map"><i class="bi bi-geo-alt-fill"></i> Crime Map</a></li>
             <li class="nav-item"><a class="nav-link active" href="/analysis"><i class="bi bi-bar-chart-line-fill"></i> Pattern Analysis</a></li>
+            <li class="nav-item"><a class="nav-link" href="/compare"><i class="bi bi-intersect"></i> Area Comparison</a></li>
             <li class="nav-item"><a class="nav-link" href="/recommendations"><i class="bi bi-lightbulb-fill"></i> Recommendations</a></li>
             <li class="nav-item mt-auto"><a class="nav-link" href="/about"><i class="bi bi-info-circle-fill"></i> About Dataset</a></li>
         </ul>
@@ -29,12 +30,26 @@
 
     <div id="main-content" class="flex-grow-1">
         <nav class="topbar navbar">
-            <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
-            <div class="topbar-title">
-                <span class="page-title">Pattern Analysis</span>
-                <span class="page-subtitle">Explore crime patterns by area</span>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
+                <div class="topbar-title">
+                    <span class="page-title">Locality Pattern Analytics &amp; Temporal Curves</span>
+                    <span class="page-subtitle">Hourly distribution, monthly seasonality, and severity weighting</span>
+                </div>
             </div>
-            <div class="topbar-right"><span class="badge badge-synthetic"><i class="bi bi-shield-fill-check me-1"></i>Synthetic Data</span></div>
+
+            <!-- Live dispatch ticker -->
+            <div class="dispatch-ticker d-none d-lg-flex mx-3">
+                <span class="pulse-live me-2"></span>
+                <span class="ticker-text" id="liveTickerText">Connecting to Chennai Live Incident Feed…</span>
+            </div>
+
+            <div class="topbar-right d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+                    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+                </button>
+                <span class="badge badge-synthetic"><i class="bi bi-shield-fill-check me-1"></i>Synthetic Data</span>
+            </div>
         </nav>
 
         <div class="page-content">
@@ -175,6 +190,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="/js/theme.js"></script>
 <script src="/js/common.js"></script>
 <script src="/js/analysis.js"></script>
 </body>

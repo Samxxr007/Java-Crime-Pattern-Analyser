@@ -99,11 +99,36 @@ public class AnalyticsService {
         Map.Entry<String, Long> topArea = byArea.entrySet().stream()
             .max(Map.Entry.comparingByValue()).orElse(null);
 
+        long totalCount = crimeRepository.count();
+        long high = bySeverity.getOrDefault("HIGH", 0L);
+        long med = bySeverity.getOrDefault("MEDIUM", 0L);
+        long low = bySeverity.getOrDefault("LOW", 0L);
+        double csi = totalCount == 0 ? 0.0 : Math.round(((high * 3.0 + med * 2.0 + low * 1.0) / totalCount) * 100.0) / 100.0;
+
+        long mCurrent = byMonth.getOrDefault(12, 0L);
+        long mPrev = byMonth.getOrDefault(11, 1L);
+        double velocity = mPrev == 0 ? 0.0 : Math.round(((double)(mCurrent - mPrev) / mPrev * 100.0) * 10.0) / 10.0;
+
+        int citySafetyIndex = totalCount == 0 ? 100 : (int) Math.round(100.0 - ((csi / 3.0) * 35.0 + ((double)high / (totalCount == 0 ? 1 : totalCount)) * 45.0));
+        citySafetyIndex = Math.max(20, Math.min(95, citySafetyIndex));
+
+        List<CrimeRecord> recentFeed = Collections.emptyList();
+        try {
+            org.springframework.data.domain.Page<CrimeRecord> p = crimeRepository.findAll(
+                    org.springframework.data.domain.PageRequest.of(0, 8, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"))
+            );
+            if (p != null && p.getContent() != null) {
+                recentFeed = p.getContent();
+            }
+        } catch (Exception e) {
+            // fallback if mock or db does not support paging
+        }
+
         return CrimeStatistics.builder()
-            .totalRecords(crimeRepository.count())
-            .highSeverityCount(bySeverity.getOrDefault("HIGH", 0L))
-            .mediumSeverityCount(bySeverity.getOrDefault("MEDIUM", 0L))
-            .lowSeverityCount(bySeverity.getOrDefault("LOW", 0L))
+            .totalRecords(totalCount)
+            .highSeverityCount(high)
+            .mediumSeverityCount(med)
+            .lowSeverityCount(low)
             .totalAreas(byArea.size())
             .mostFrequentCrimeType(topType != null ? topType.getKey() : "N/A")
             .mostFrequentCrimeTypeCount(topType != null ? topType.getValue() : 0L)
@@ -117,7 +142,20 @@ public class AnalyticsService {
             .crimesByYear(byYear)
             .severityDistribution(bySeverity)
             .statusDistribution(byStatus)
+            .crimeSeverityIndex(csi)
+            .trendVelocityPercent(velocity)
+            .citySafetyIndex(citySafetyIndex)
+            .recentIncidents(recentFeed)
             .build();
+    }
+
+    /**
+     * Returns recent incidents for live command center status feeds.
+     */
+    public List<CrimeRecord> getLiveFeed() {
+        return crimeRepository.findAll(
+                org.springframework.data.domain.PageRequest.of(0, 12, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"))
+        ).getContent();
     }
 
     // -------------------------------------------------------

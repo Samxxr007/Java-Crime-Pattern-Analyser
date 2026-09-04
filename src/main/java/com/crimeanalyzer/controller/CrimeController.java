@@ -160,6 +160,24 @@ public class CrimeController {
         return ResponseEntity.ok(resp);
     }
 
+    @Autowired
+    private com.crimeanalyzer.service.ExportService exportService;
+
+    @GetMapping("/export/csv")
+    public void exportCsv(
+            @RequestParam(required = false) String area,
+            @RequestParam(required = false) String crimeType,
+            @RequestParam(required = false) String severity,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+
+        response.setContentType("text/csv");
+        String filename = "chennai_crime_export_" + System.currentTimeMillis() + ".csv";
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        exportService.exportToCsv(response.getWriter(), area, crimeType, severity, fromDate, toDate);
+    }
+
     @GetMapping("/dataset/info")
     public ResponseEntity<Map<String, Object>> datasetInfo() {
         Map<String, Object> resp = new LinkedHashMap<>();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crime Map — Chennai Crime Pattern Analyzer</title>
+    <title>Geospatial Command Map — Chennai Crime Pattern Analyzer</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -11,19 +11,23 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        #map { height: calc(100vh - 200px); min-height: 500px; border-radius: 0 0 12px 12px; }
-        .leaflet-popup-content { font-size: 13px; min-width: 180px; }
-        .popup-header { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: #1e3a5f; }
+        #map { height: calc(100vh - 220px); min-height: 520px; border-radius: 0 0 12px 12px; }
+        .leaflet-popup-content { font-size: 13px; min-width: 200px; }
+        .popup-header { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--blue); }
         .popup-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
         .popup-label { color: #6c757d; font-size: 12px; }
     </style>
 </head>
 <body>
 <div class="d-flex" id="app-wrapper">
+    <!-- Sidebar -->
     <nav id="sidebar" class="sidebar d-flex flex-column">
         <div class="sidebar-brand">
             <div class="brand-icon"><i class="bi bi-shield-fill-exclamation"></i></div>
-            <div><div class="brand-title">CrimeAnalyzer</div><div class="brand-sub">Chennai · Academic Project</div></div>
+            <div>
+                <div class="brand-title">CrimeAnalyzer</div>
+                <div class="brand-sub">Chennai · Command Center</div>
+            </div>
         </div>
         <hr class="sidebar-divider">
         <ul class="nav flex-column sidebar-nav">
@@ -31,6 +35,7 @@
             <li class="nav-item"><a class="nav-link" href="/records"><i class="bi bi-table"></i> Crime Records</a></li>
             <li class="nav-item"><a class="nav-link active" href="/map"><i class="bi bi-geo-alt-fill"></i> Crime Map</a></li>
             <li class="nav-item"><a class="nav-link" href="/analysis"><i class="bi bi-bar-chart-line-fill"></i> Pattern Analysis</a></li>
+            <li class="nav-item"><a class="nav-link" href="/compare"><i class="bi bi-intersect"></i> Area Comparison</a></li>
             <li class="nav-item"><a class="nav-link" href="/recommendations"><i class="bi bi-lightbulb-fill"></i> Recommendations</a></li>
             <li class="nav-item mt-auto"><a class="nav-link" href="/about"><i class="bi bi-info-circle-fill"></i> About Dataset</a></li>
         </ul>
@@ -38,71 +43,118 @@
     </nav>
 
     <div id="main-content" class="flex-grow-1">
+        <!-- Top navbar -->
         <nav class="topbar navbar">
-            <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
-            <div class="topbar-title">
-                <span class="page-title">Crime Map</span>
-                <span class="page-subtitle">Synthetic crime density visualization — Chennai</span>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-link sidebar-toggle" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
+                <div class="topbar-title">
+                    <span class="page-title">Geospatial Command Map &amp; Radius Scanner</span>
+                    <span class="page-subtitle">Multi-layer cluster mapping, proximity buffers, and patrol route intelligence</span>
+                </div>
             </div>
-            <div class="topbar-right"><span class="badge badge-synthetic"><i class="bi bi-shield-fill-check me-1"></i>Synthetic Data</span></div>
+
+            <!-- Live dispatch ticker -->
+            <div class="dispatch-ticker d-none d-lg-flex mx-3">
+                <span class="pulse-live me-2"></span>
+                <span class="ticker-text" id="liveTickerText">Connecting to Chennai Live Incident Feed…</span>
+            </div>
+
+            <div class="topbar-right d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+                    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+                </button>
+                <span class="badge badge-synthetic"><i class="bi bi-shield-fill-check me-1"></i>Synthetic Data</span>
+            </div>
         </nav>
 
         <div class="page-content pb-0">
-            <div class="alert alert-info-custom mb-3">
-                <i class="bi bi-map me-2"></i>
-                <strong>Synthetic Crime Density Visualization.</strong> Markers represent generated academic data only.
-                Not an official crime hotspot map. Use filters to explore patterns.
-            </div>
-
-            <!-- Map filters -->
+            <!-- Map controls -->
             <div class="chart-card mb-3">
                 <div class="p-3">
                     <div class="row g-3 align-items-end">
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold">Area</label>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Locality</label>
                             <select class="form-select" id="mapFilterArea">
-                                <option value="">All Areas</option>
+                                <option value="">All 25 Sectors</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-semibold">Crime Type</label>
                             <select class="form-select" id="mapFilterType">
-                                <option value="">All Types</option>
+                                <option value="">All Categories</option>
                             </select>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-semibold">Severity</label>
                             <select class="form-select" id="mapFilterSeverity">
-                                <option value="">All</option>
-                                <option value="HIGH">High</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="LOW">Low</option>
+                                <option value="">All Tiers</option>
+                                <option value="HIGH">HIGH</option>
+                                <option value="MEDIUM">MEDIUM</option>
+                                <option value="LOW">LOW</option>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label fw-semibold">View Mode</label>
-                            <select class="form-select" id="mapViewMode">
-                                <option value="markers">Markers</option>
-                                <option value="heatmap">Density View</option>
+                            <label class="form-label fw-semibold">Basemap Layer</label>
+                            <select class="form-select" id="mapBaseLayer">
+                                <option value="dark" selected>Command Dark</option>
+                                <option value="osm">Standard Streets</option>
+                                <option value="satellite">Satellite Imagery</option>
                             </select>
                         </div>
-                        <div class="col-md-2 d-flex gap-2">
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Visualization Mode</label>
+                            <select class="form-select" id="mapViewMode">
+                                <option value="markers">Cluster Markers</option>
+                                <option value="heatmap">Density Heatmap</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex gap-1">
                             <button class="btn btn-primary flex-grow-1" id="applyMapFilters">
                                 <i class="bi bi-search me-1"></i>Apply
                             </button>
-                            <button class="btn btn-outline-secondary" id="clearMapFilters" title="Clear">
-                                <i class="bi bi-x"></i>
+                            <button class="btn btn-outline-secondary" id="clearMapFilters" title="Reset">
+                                <i class="bi bi-arrow-counterclockwise"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="mt-2 d-flex align-items-center gap-3 small text-muted">
-                        <span id="mapRecordCount"><i class="bi bi-pin-map me-1"></i>Loading…</span>
-                        <span>|</span>
-                        <span class="marker-legend">
-                            <span class="legend-dot bg-danger me-1"></span>High
-                            <span class="legend-dot bg-warning mx-2 me-1"></span>Medium
-                            <span class="legend-dot bg-success me-1"></span>Low
-                        </span>
+
+                    <!-- Spatial Radius Scanner bar -->
+                    <div class="row g-2 align-items-center mt-2 pt-2 border-top">
+                        <div class="col-auto">
+                            <span class="badge bg-primary-subtle text-primary fw-bold">
+                                <i class="bi bi-radar me-1"></i>Radius Scanner Tool:
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="small text-secondary">Click anywhere on Chennai map or select radius:</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary active" id="btnRadius1" onclick="setScanRadius(1)">1 km</button>
+                                <button type="button" class="btn btn-outline-primary" id="btnRadius3" onclick="setScanRadius(3)">3 km</button>
+                                <button type="button" class="btn btn-outline-primary" id="btnRadius5" onclick="setScanRadius(5)">5 km</button>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-sm btn-outline-warning" id="btnPatrolRoute" onclick="togglePatrolRoute()">
+                                <i class="bi bi-signpost-2-fill me-1"></i>Suggest Patrol Waypoints
+                            </button>
+                        </div>
+                        <div class="col text-end small">
+                            <span id="mapRecordCount" class="fw-semibold text-primary"><i class="bi bi-pin-map me-1"></i>Loading…</span>
+                            <span class="mx-2 text-muted">|</span>
+                            <span class="marker-legend">
+                                <span class="legend-dot bg-danger me-1"></span>High
+                                <span class="legend-dot bg-warning mx-1"></span>Med
+                                <span class="legend-dot bg-success mx-1"></span>Low
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Proximity scan banner -->
+                    <div class="alert alert-warning py-2 px-3 mt-2 mb-0 small d-none" id="proximityAlert">
+                        <i class="bi bi-broadcast me-2"></i>
+                        <span id="proximityAlertText">Scanning radius…</span>
                     </div>
                 </div>
             </div>
@@ -119,6 +171,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="/js/theme.js"></script>
 <script src="/js/common.js"></script>
 <script src="/js/map.js"></script>
 </body>

@@ -62,4 +62,19 @@ public class CrimeStatistics {
 
     /** Case status → count. */
     private Map<String, Long> statusDistribution;
+
+    // -------------------------------------------------------
+    // Command Center Advanced Metrics
+    // -------------------------------------------------------
+    /** Overall Crime Severity Index (CSI): weighted score (1.0 to 3.0). */
+    private double crimeSeverityIndex;
+
+    /** Month-over-Month Incident Velocity (% change). */
+    private double trendVelocityPercent;
+
+    /** Overall City Safety Index (0 to 100). */
+    private int citySafetyIndex;
+
+    /** Simulated recent incidents for live command center feed. */
+    private java.util.List<CrimeRecord> recentIncidents;
 }

@@ -42,6 +42,11 @@ public class PageController {
         return "recommendations";
     }
 
+    @GetMapping("/compare")
+    public String compare() {
+        return "compare";
+    }
+
     @GetMapping("/about")
     public String about() {
         return "about";

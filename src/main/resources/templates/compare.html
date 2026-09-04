@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area Comparison — Chennai Crime Pattern Analyzer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="d-flex" id="app-wrapper">
+    <!-- SIDEBAR -->
+    <nav id="sidebar" class="sidebar d-flex flex-column">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="bi bi-shield-fill-exclamation"></i></div>
+            <div>
+                <div class="brand-title">CrimeAnalyzer</div>
+                <div class="brand-sub">Chennai · Command Center</div>
+            </div>
+        </div>
+        <hr class="sidebar-divider">
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/records">
+                    <i class="bi bi-table"></i> Crime Records
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/map">
+                    <i class="bi bi-geo-alt-fill"></i> Crime Map
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/analysis">
+                    <i class="bi bi-bar-chart-line-fill"></i> Pattern Analysis
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/compare">
+                    <i class="bi bi-intersect"></i> Area Comparison
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/recommendations">
+                    <i class="bi bi-lightbulb-fill"></i> Recommendations
+                </a>
+            </li>
+            <li class="nav-item mt-auto">
+                <a class="nav-link" href="/about">
+                    <i class="bi bi-info-circle-fill"></i> About Dataset
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <i class="bi bi-database-fill-check me-1"></i> Synthetic Data Only
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div id="main-content" class="flex-grow-1">
+        <!-- Top navbar -->
+        <nav class="topbar navbar">
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <div class="topbar-title">
+                    <span class="page-title">Area Comparison & Differential Risk Analysis</span>
+                    <span class="page-subtitle">Head-to-head spatial intelligence and safety metrics</span>
+                </div>
+            </div>
+
+            <!-- Live dispatch ticker -->
+            <div class="dispatch-ticker d-none d-lg-flex mx-3">
+                <span class="pulse-live me-2"></span>
+                <span class="ticker-text" id="liveTickerText">Connecting to Chennai Live Incident Feed…</span>
+            </div>
+
+            <div class="topbar-right d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+                    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-primary btn-print" onclick="window.print()">
+                    <i class="bi bi-printer-fill me-1"></i>Print Dossier
+                </button>
+                <span class="badge badge-synthetic">
+                    <i class="bi bi-shield-fill-check me-1"></i>Synthetic Data
+                </span>
+            </div>
+        </nav>
+
+        <!-- Page content -->
+        <div class="page-content">
+            <!-- Selector Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold text-primary"><i class="bi bi-geo-alt-fill me-1"></i>Primary Area (Area 1)</label>
+                            <select id="selectArea1" class="form-select form-select-lg">
+                                <option value="Anna Nagar" selected>Anna Nagar</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="badge bg-secondary-subtle text-secondary py-2 px-3 fs-6 w-100">
+                                <i class="bi bi-arrow-left-right me-1"></i> VERSUS
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold text-danger"><i class="bi bi-geo-alt-fill me-1"></i>Comparative Area (Area 2)</label>
+                            <select id="selectArea2" class="form-select form-select-lg">
+                                <option value="T Nagar" selected>T Nagar</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparative Summary Banner -->
+            <div class="alert alert-info-custom d-flex align-items-center mb-4" id="compareSummaryAlert">
+                <i class="bi bi-cpu-fill fs-3 me-3 text-primary"></i>
+                <div>
+                    <h6 class="fw-bold mb-1">Comparative Intelligence Evaluation</h6>
+                    <div id="compareSummaryText">Analyzing differential safety scores and crime distributions between selected areas…</div>
+                </div>
+            </div>
+
+            <!-- Scorecards Row -->
+            <div class="row g-4 mb-4">
+                <!-- Area 1 Scorecard -->
+                <div class="col-md-6">
+                    <div class="compare-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0 text-primary" id="titleArea1">Anna Nagar</h5>
+                            <span class="badge bg-primary-subtle text-primary" id="hotspotBadge1">HOTSPOT LEVEL</span>
+                        </div>
+                        <div class="row g-3 text-center mb-3">
+                            <div class="col-4">
+                                <div class="score-circle safe mb-2" id="scoreCircle1">
+                                    <span id="safetyScore1">—</span>
+                                    <span class="score-circle-label">Safety</span>
+                                </div>
+                            </div>
+                            <div class="col-4 border-start">
+                                <div class="fs-4 fw-bold text-body" id="totalIncidents1">—</div>
+                                <div class="text-secondary small">Total Incidents</div>
+                            </div>
+                            <div class="col-4 border-start">
+                                <div class="fs-4 fw-bold text-warning" id="csi1">—</div>
+                                <div class="text-secondary small">Severity Index (CSI)</div>
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item d-flex justify-content-between bg-transparent px-0">
+                                <span class="text-secondary">Dominant Incident:</span>
+                                <span class="fw-bold" id="dominantCrime1">—</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between bg-transparent px-0">
+                                <span class="text-secondary">Peak Vulnerability Window:</span>
+                                <span class="fw-bold" id="peakTime1">—</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between bg-transparent px-0">
+                                <span class="text-secondary">Composite Hotspot Score:</span>
+                                <span class="fw-bold" id="hotspotScore1">—</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Area 2 Scorecard -->
+                <div class="col-md-6">
+                    <div class="compare-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0 text-danger" id="titleArea2">T Nagar</h5>
+                            <span class="badge bg-danger-subtle text-danger" id="hotspotBadge2">HOTSPOT LEVEL</span>
+                        </div>
+                        <div class="row g-3 text-center mb-3">
+                            <div class="col-4">
+                                <div class="score-circle moderate mb-2" id="scoreCircle2">
+                                    <span id="safetyScore2">—</span>
+                                    <span class="score-circle-label">Safety</span>
+                                </div>
+                            </div>
+                            <div class="col-4 border-start">
+                                <div class="fs-4 fw-bold text-body" id="totalIncidents2">—</div>
+                                <div class="text-secondary small">Total Incidents</div>
+                            </div>
+                            <div class="col-4 border-start">
+                                <div class="fs-4 fw-bold text-warning" id="csi2">—</div>
+                                <div class="text-secondary small">Severity Index (CSI)</div>
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item d-flex justify-content-between bg-transparent px-0">
+                                <span class="text-secondary">Dominant Incident:</span>
+                                <span class="fw-bold" id="dominantCrime2">—</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between bg-transparent px-0">
+                                <span class="text-secondary">Peak Vulnerability Window:</span>
+                                <span class="fw-bold" id="peakTime2">—</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between bg-transparent px-0">
+                                <span class="text-secondary">Composite Hotspot Score:</span>
+                                <span class="fw-bold" id="hotspotScore2">—</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Comparison Charts -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-7">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-radar me-2 text-primary"></i>Comparative Crime Profile (Radar Analysis)</span>
+                            <span class="chart-badge">10 Crime Categories</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="radarCompareChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <span class="chart-title"><i class="bi bi-bar-chart-fill me-2 text-warning"></i>Severity Level Comparison</span>
+                            <span class="chart-badge">High / Med / Low</span>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="severityCompareChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Comparison Table -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="bi bi-table me-2 text-primary"></i>Head-to-Head Crime Type Breakdown</span>
+                    <span class="badge bg-secondary-subtle text-secondary" id="tableSubtitle">Anna Nagar vs T Nagar</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="comparisonTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Crime Category</th>
+                                    <th class="text-center" id="thArea1">Area 1 Count</th>
+                                    <th class="text-center" id="thArea2">Area 2 Count</th>
+                                    <th class="text-center">Differential</th>
+                                    <th class="text-center">Vulnerability Assessment</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparisonTableBody">
+                                <tr><td colspan="5" class="text-center py-4 text-secondary">Loading comparison breakdown…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /page-content -->
+    </div><!-- /main-content -->
+</div><!-- /app-wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="/js/theme.js"></script>
+<script src="/js/compare.js"></script>
+</body>
+</html>

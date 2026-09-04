@@ -8,24 +8,29 @@
 // Chart instances (held globally so they can be destroyed on refresh)
 let areaChart, typeChart, monthChart, hourChart, severityChart, yearChart, dayChart;
 
+// Cached stats for instantaneous theme-switch re-rendering
+let cachedStats = null;
+
 // -------------------------------------------------------
 // Entry point
 // -------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
     await loadDashboard();
+
+    // Listen for dark/light mode toggle and re-render charts immediately
+    window.addEventListener('themeChanged', () => {
+        if (cachedStats) {
+            renderAllCharts(cachedStats);
+        }
+    });
 });
 
 async function loadDashboard() {
     try {
         const stats = await apiFetch('/api/analytics/summary');
+        cachedStats = stats;
         renderStatCards(stats);
-        renderAreaChart(stats.crimesByArea);
-        renderTypeChart(stats.crimesByType);
-        renderMonthChart(stats.crimesByMonth);
-        renderHourChart(stats.crimesByHour);
-        renderSeverityChart(stats.severityDistribution);
-        renderYearChart(stats.crimesByYear);
-        renderDayChart(stats.crimesByDayOfWeek);
+        renderAllCharts(stats);
     } catch (err) {
         console.error('Dashboard load error:', err);
         showToast('Failed to load dashboard data. Is the server running?', 'error');
@@ -37,6 +42,17 @@ async function loadDashboard() {
     } catch (err) {
         console.error('Hotspot load error:', err);
     }
+}
+
+function renderAllCharts(stats) {
+    if (!stats) return;
+    renderAreaChart(stats.crimesByArea);
+    renderTypeChart(stats.crimesByType);
+    renderMonthChart(stats.crimesByMonth);
+    renderHourChart(stats.crimesByHour);
+    renderSeverityChart(stats.severityDistribution);
+    renderYearChart(stats.crimesByYear);
+    renderDayChart(stats.crimesByDayOfWeek);
 }
 
 // -------------------------------------------------------
@@ -80,17 +96,17 @@ function animateValue(id, start, end, duration) {
 }
 
 // -------------------------------------------------------
-// Charts
+// Charts with dynamic contrast synchronization
 // -------------------------------------------------------
 
 function renderAreaChart(data) {
     if (!data) return;
-    // Sort descending, take top 15
     const sorted = Object.entries(data)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 15);
     const labels = sorted.map(e => e[0]);
     const values = sorted.map(e => e[1]);
+    const { textColor, tickColor, gridColor } = getChartThemeColors();
 
     destroyChart(areaChart);
     areaChart = new Chart(document.getElementById('areaChart'), {
@@ -110,8 +126,15 @@ function renderAreaChart(data) {
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { grid: { display: false }, ticks: { maxRotation: 40, font: { size: 11 } } },
-                y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { stepSize: 20 } }
+                x: { 
+                    grid: { display: false }, 
+                    ticks: { color: tickColor, maxRotation: 40, font: { size: 11, weight: '500' } } 
+                },
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: gridColor }, 
+                    ticks: { color: tickColor, stepSize: 20, font: { weight: '500' } } 
+                }
             }
         }
     });
@@ -122,6 +145,7 @@ function renderTypeChart(data) {
     const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
     const labels  = entries.map(e => e[0]);
     const values  = entries.map(e => e[1]);
+    const { textColor, borderColor } = getChartThemeColors();
 
     destroyChart(typeChart);
     typeChart = new Chart(document.getElementById('typeChart'), {
@@ -132,7 +156,7 @@ function renderTypeChart(data) {
                 data: values,
                 backgroundColor: CHART_COLORS,
                 borderWidth: 2,
-                borderColor: '#fff',
+                borderColor: borderColor,
                 hoverOffset: 8
             }]
         },
@@ -141,7 +165,10 @@ function renderTypeChart(data) {
             maintainAspectRatio: false,
             cutout: '55%',
             plugins: {
-                legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } }
+                legend: { 
+                    position: 'bottom', 
+                    labels: { color: textColor, font: { size: 11, weight: '500' }, padding: 10 } 
+                }
             }
         }
     });
@@ -152,6 +179,7 @@ function renderMonthChart(data) {
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
     const labels = months.map(m => monthName(m));
     const values = months.map(m => data[m] || 0);
+    const { tickColor, gridColor } = getChartThemeColors();
 
     destroyChart(monthChart);
     monthChart = new Chart(document.getElementById('monthChart'), {
@@ -162,7 +190,7 @@ function renderMonthChart(data) {
                 label: 'Incidents',
                 data: values,
                 borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59,130,246,0.12)',
+                backgroundColor: 'rgba(59,130,246,0.15)',
                 borderWidth: 2.5,
                 pointRadius: 4,
                 pointBackgroundColor: '#3b82f6',
@@ -175,8 +203,15 @@ function renderMonthChart(data) {
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true, grid: { color: '#f1f5f9' } }
+                x: { 
+                    grid: { display: false },
+                    ticks: { color: tickColor, font: { weight: '500' } }
+                },
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: gridColor },
+                    ticks: { color: tickColor, font: { weight: '500' } }
+                }
             }
         }
     });
@@ -187,6 +222,7 @@ function renderHourChart(data) {
     const hours  = Array.from({ length: 24 }, (_, i) => i);
     const labels = hours.map(h => hourLabel(h));
     const values = hours.map(h => data[h] || 0);
+    const { tickColor, gridColor } = getChartThemeColors();
 
     destroyChart(hourChart);
     hourChart = new Chart(document.getElementById('hourChart'), {
@@ -206,8 +242,15 @@ function renderHourChart(data) {
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { grid: { display: false }, ticks: { maxTicksLimit: 12, font: { size: 10 } } },
-                y: { beginAtZero: true, grid: { color: '#f1f5f9' } }
+                x: { 
+                    grid: { display: false }, 
+                    ticks: { color: tickColor, maxTicksLimit: 12, font: { size: 10, weight: '500' } } 
+                },
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: gridColor },
+                    ticks: { color: tickColor, font: { weight: '500' } }
+                }
             }
         }
     });
@@ -218,6 +261,7 @@ function renderSeverityChart(data) {
     const labels = ['HIGH', 'MEDIUM', 'LOW'];
     const values = labels.map(l => data[l] || 0);
     const colors = ['#ef4444', '#f97316', '#22c55e'];
+    const { textColor, borderColor } = getChartThemeColors();
 
     destroyChart(severityChart);
     severityChart = new Chart(document.getElementById('severityChart'), {
@@ -228,7 +272,7 @@ function renderSeverityChart(data) {
                 data: values,
                 backgroundColor: colors,
                 borderWidth: 2,
-                borderColor: '#fff',
+                borderColor: borderColor,
                 hoverOffset: 8
             }]
         },
@@ -236,7 +280,10 @@ function renderSeverityChart(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 14 } }
+                legend: { 
+                    position: 'bottom', 
+                    labels: { color: textColor, font: { size: 12, weight: '600' }, padding: 14 } 
+                }
             }
         }
     });
@@ -246,6 +293,7 @@ function renderYearChart(data) {
     if (!data) return;
     const years  = Object.keys(data).sort();
     const values = years.map(y => data[y] || 0);
+    const { tickColor, gridColor } = getChartThemeColors();
 
     destroyChart(yearChart);
     yearChart = new Chart(document.getElementById('yearChart'), {
@@ -256,7 +304,7 @@ function renderYearChart(data) {
                 label: 'Incidents',
                 data: values,
                 borderColor: '#8b5cf6',
-                backgroundColor: 'rgba(139,92,246,0.12)',
+                backgroundColor: 'rgba(139,92,246,0.15)',
                 borderWidth: 2.5,
                 pointRadius: 5,
                 pointBackgroundColor: '#8b5cf6',
@@ -269,8 +317,15 @@ function renderYearChart(data) {
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true, grid: { color: '#f1f5f9' } }
+                x: { 
+                    grid: { display: false },
+                    ticks: { color: tickColor, font: { weight: '500' } }
+                },
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: gridColor },
+                    ticks: { color: tickColor, font: { weight: '500' } }
+                }
             }
         }
     });
@@ -281,6 +336,7 @@ function renderDayChart(data) {
     const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const labels   = dayOrder.filter(d => data[d] !== undefined);
     const values   = labels.map(d => data[d] || 0);
+    const { tickColor, gridColor } = getChartThemeColors();
 
     destroyChart(dayChart);
     dayChart = new Chart(document.getElementById('dayChart'), {
@@ -300,8 +356,15 @@ function renderDayChart(data) {
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true, grid: { color: '#f1f5f9' } }
+                x: { 
+                    grid: { display: false },
+                    ticks: { color: tickColor, font: { weight: '500' } }
+                },
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: gridColor },
+                    ticks: { color: tickColor, font: { weight: '500' } }
+                }
             }
         }
     });

@@ -69,6 +69,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     map.on('click', (e) => {
         triggerProximityScan(e.latlng.lat, e.latlng.lng);
     });
+
+    // Synchronize base map layer with theme mode
+    window.addEventListener('themeChanged', (e) => {
+        const isDark = e.detail?.isDark;
+        const baseLayerSelect = document.getElementById('mapBaseLayer');
+        const newLayer = isDark ? 'dark' : 'osm';
+        if (baseLayerSelect) baseLayerSelect.value = newLayer;
+        switchBaseLayer(newLayer);
+    });
 });
 
 function initMap() {
@@ -79,7 +88,11 @@ function initMap() {
         attributionControl: true
     });
 
-    switchBaseLayer('dark');
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const initialLayer = isDark ? 'dark' : 'osm';
+    const baseLayerSelect = document.getElementById('mapBaseLayer');
+    if (baseLayerSelect) baseLayerSelect.value = initialLayer;
+    switchBaseLayer(initialLayer);
 
     markerClusterGroup = L.markerClusterGroup({
         chunkedLoading: true,

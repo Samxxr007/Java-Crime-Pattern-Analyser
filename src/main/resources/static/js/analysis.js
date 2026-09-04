@@ -6,6 +6,7 @@
 'use strict';
 
 let aMonthChart, aHourChart, aTypeChart, aSeverityChart, aDayChart;
+let cachedAnalysisData = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     const areaSelect = document.getElementById('analysisArea');
@@ -22,6 +23,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     areaSelect.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') document.getElementById('analyseBtn').click();
+    });
+
+    window.addEventListener('themeChanged', () => {
+        if (cachedAnalysisData) {
+            renderAreaCharts(cachedAnalysisData);
+        }
     });
 });
 
@@ -45,6 +52,7 @@ async function runAnalysis(area) {
             return;
         }
 
+        cachedAnalysisData = data;
         populateSummaryCards(data);
         renderAreaCharts(data);
         resultsEl.style.display = 'block';
@@ -81,6 +89,8 @@ function populateSummaryCards(d) {
 }
 
 function renderAreaCharts(d) {
+    const { textColor, tickColor, gridColor, borderColor } = getChartThemeColors();
+
     // Monthly trend
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
     destroyChart(aMonthChart);
@@ -92,7 +102,7 @@ function renderAreaCharts(d) {
                 label: 'Incidents',
                 data: months.map(m => d.monthlyTrend?.[m] || 0),
                 borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59,130,246,0.1)',
+                backgroundColor: 'rgba(59,130,246,0.15)',
                 borderWidth: 2.5,
                 pointRadius: 4,
                 fill: true,
@@ -117,10 +127,20 @@ function renderAreaCharts(d) {
                 borderSkipped: false,
             }]
         },
-        options: { ...chartOpts(), scales: {
-            x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
-            y: { beginAtZero: true, grid: { color: '#f1f5f9' } }
-        }}
+        options: { 
+            ...chartOpts(), 
+            scales: {
+                x: { 
+                    grid: { display: false }, 
+                    ticks: { color: tickColor, maxTicksLimit: 8, font: { weight: '500' } } 
+                },
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: gridColor },
+                    ticks: { color: tickColor, font: { weight: '500' } }
+                }
+            }
+        }
     });
 
     // Crime type breakdown
@@ -134,14 +154,19 @@ function renderAreaCharts(d) {
                 data: typeEntries.map(e => e[1]),
                 backgroundColor: CHART_COLORS,
                 borderWidth: 2,
-                borderColor: '#fff'
+                borderColor: borderColor
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             cutout: '50%',
-            plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 8 } } }
+            plugins: { 
+                legend: { 
+                    position: 'bottom', 
+                    labels: { color: textColor, font: { size: 11, weight: '500' }, padding: 8 } 
+                } 
+            }
         }
     });
 
@@ -183,13 +208,21 @@ function renderAreaCharts(d) {
 }
 
 function chartOpts() {
+    const { tickColor, gridColor } = getChartThemeColors();
     return {
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-            x: { grid: { display: false } },
-            y: { beginAtZero: true, grid: { color: '#f1f5f9' } }
+            x: { 
+                grid: { display: false },
+                ticks: { color: tickColor, font: { weight: '500' } }
+            },
+            y: { 
+                beginAtZero: true, 
+                grid: { color: gridColor },
+                ticks: { color: tickColor, font: { weight: '500' } }
+            }
         }
     };
 }

@@ -114,7 +114,7 @@ function hourLabel(h) {
 }
 
 // -------------------------------------------------------
-// Chart.js default palette
+// Chart.js High-Contrast Dynamic Palette
 // -------------------------------------------------------
 const CHART_COLORS = [
     '#3b82f6', '#ef4444', '#f97316', '#8b5cf6', '#14b8a6',
@@ -122,12 +122,23 @@ const CHART_COLORS = [
     '#0ea5e9', '#a855f7', '#84cc16', '#fb923c', '#6366f1'
 ];
 
-/** Applies a consistent style to a Chart.js chart. */
+function getChartThemeColors() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return {
+        textColor: isDark ? '#ffffff' : '#0f172a',
+        tickColor: isDark ? '#f1f5f9' : '#334155',
+        gridColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)',
+        borderColor: isDark ? '#111827' : '#ffffff'
+    };
+}
+
+/** Applies high-contrast styling to Chart.js. */
 Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
 Chart.defaults.font.size   = 12;
-Chart.defaults.color       = '#64748b';
+Chart.defaults.color       = document.documentElement.getAttribute('data-theme') === 'dark' ? '#ffffff' : '#1e293b';
 Chart.defaults.plugins.legend.labels.usePointStyle = true;
 Chart.defaults.plugins.legend.labels.pointStyleWidth = 10;
+Chart.defaults.plugins.legend.labels.color = document.documentElement.getAttribute('data-theme') === 'dark' ? '#ffffff' : '#1e293b';
 
 /** Destroys a chart instance safely before re-creating. */
 function destroyChart(chartVar) {

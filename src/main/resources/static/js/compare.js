@@ -5,6 +5,7 @@
 
 let radarChart = null;
 let barChart = null;
+let cachedComparisonData = null;
 
 const CHENNAI_AREAS = [
     "Anna Nagar", "T Nagar", "Adyar", "Velachery", "Tambaram",
@@ -23,6 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
     populateAreaDropdowns();
     initEventListeners();
     loadComparison("Anna Nagar", "T Nagar");
+
+    window.addEventListener('themeChanged', () => {
+        if (cachedComparisonData) {
+            renderRadarChart(cachedComparisonData);
+            renderSeverityChart(cachedComparisonData);
+        }
+    });
 });
 
 function populateAreaDropdowns() {
@@ -66,6 +74,7 @@ function loadComparison(area1, area2) {
             return r.json();
         })
         .then(data => {
+            cachedComparisonData = data;
             renderScorecards(data);
             renderRadarChart(data);
             renderSeverityChart(data);
@@ -127,6 +136,7 @@ function renderRadarChart(d) {
 
     const data1 = ALL_CRIME_TYPES.map(t => d.crimeDistributionArea1[t] || 0);
     const data2 = ALL_CRIME_TYPES.map(t => d.crimeDistributionArea2[t] || 0);
+    const { textColor, tickColor, gridColor, borderColor } = getChartThemeColors();
 
     if (radarChart) radarChart.destroy();
 
@@ -138,24 +148,24 @@ function renderRadarChart(d) {
                 {
                     label: d.area1,
                     data: data1,
-                    backgroundColor: 'rgba(59, 130, 246, 0.25)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.35)',
                     borderColor: '#3b82f6',
                     pointBackgroundColor: '#3b82f6',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
+                    pointBorderColor: borderColor,
+                    pointHoverBackgroundColor: borderColor,
                     pointHoverBorderColor: '#3b82f6',
-                    borderWidth: 2
+                    borderWidth: 2.5
                 },
                 {
                     label: d.area2,
                     data: data2,
-                    backgroundColor: 'rgba(239, 68, 68, 0.25)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.35)',
                     borderColor: '#ef4444',
                     pointBackgroundColor: '#ef4444',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
+                    pointBorderColor: borderColor,
+                    pointHoverBackgroundColor: borderColor,
                     pointHoverBorderColor: '#ef4444',
-                    borderWidth: 2
+                    borderWidth: 2.5
                 }
             ]
         },
@@ -165,13 +175,17 @@ function renderRadarChart(d) {
             elements: { line: { tension: 0.2 } },
             scales: {
                 r: {
-                    angleLines: { color: 'rgba(150, 150, 150, 0.2)' },
-                    grid: { color: 'rgba(150, 150, 150, 0.2)' },
-                    pointLabels: { font: { size: 11 } }
+                    angleLines: { color: gridColor },
+                    grid: { color: gridColor },
+                    pointLabels: { color: textColor, font: { size: 11, weight: '600' } },
+                    ticks: { display: false, backdropColor: 'transparent' }
                 }
             },
             plugins: {
-                legend: { position: 'top' }
+                legend: { 
+                    position: 'top',
+                    labels: { color: textColor, font: { weight: '600' } }
+                }
             }
         }
     });
@@ -184,6 +198,7 @@ function renderSeverityChart(d) {
     const severities = ['HIGH', 'MEDIUM', 'LOW'];
     const s1 = severities.map(s => d.severityDistributionArea1[s] || 0);
     const s2 = severities.map(s => d.severityDistributionArea2[s] || 0);
+    const { textColor, tickColor, gridColor } = getChartThemeColors();
 
     if (barChart) barChart.destroy();
 
@@ -210,11 +225,21 @@ function renderSeverityChart(d) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(150, 150, 150, 0.15)' } },
-                x: { grid: { display: false } }
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: gridColor },
+                    ticks: { color: tickColor, font: { weight: '500' } }
+                },
+                x: { 
+                    grid: { display: false },
+                    ticks: { color: tickColor, font: { weight: '600' } }
+                }
             },
             plugins: {
-                legend: { position: 'top' }
+                legend: { 
+                    position: 'top',
+                    labels: { color: textColor, font: { weight: '600' } }
+                }
             }
         }
     });
